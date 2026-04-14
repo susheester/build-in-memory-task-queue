@@ -8,9 +8,14 @@
 
 <!-- First 5 minutes, before you touch any code.
      - What's your gut take on the problem?
+This looks like creating a job scheduler with different components such as job queues, timers, concurrent jobs, delays, failure mode handling.
      - What feels like the hard part?
+     May be working on retry with delay and shutdown, how to handle this part - "the delayed tasks shouldn’t take a concurrency slot"
+     Can I use semaphores?
      - What approaches do you see? Which would you rule out and why?
+     I used semaphores in my previous projects to handle such job scheduling. 
      - Anything you're already unsure about? -->
+     There are several Job schedulers such as Airflow, Control-M etc.. out there that can do these jobs in an easier and time efficient way rather than building something of this kind from scratch.
 
 ## Plan
 
