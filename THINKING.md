@@ -43,11 +43,34 @@ Also:
 
 ## Plan
 
-<!-- Still before coding (or right at the start).
-     - How will you structure this? Files, types, main components.
-     - What are the key design decisions you're making up front?
-     - What are you deliberately deferring?
-     - What will you build FIRST — the smallest slice that proves something useful? -->
+## Plan
+
+- How will you structure this?
+
+Thinking:
+     - Task object - handler, payload, retries, backoff, attempt count, next_run_time
+     - ready queue - tasks ready to run
+     - delayed queue - priority queue (heap) based on next_run_time
+
+
+- What are the key design decisions you're making up front?
+     - use semaphore to control concurrency
+     - use threads for execution (simpler than asyncio)
+     - delayed tasks should NOT block worker threads → need separate scheduling
+
+
+- What are you deliberately deferring?
+     - supporting async handlers (will assume sync for now can look into async later)
+     - optimizing scheduler (simple polling loop is fine)
+
+
+- What will you build FIRST — the smallest slice that proves something useful?
+     1. basic enqueue + run task (no concurrency limit)
+     2. add concurrency with semaphore
+     3. add delayed tasks (heap + scheduler loop)
+     4. add retry with backoff (reuse delayed mechanism)
+     5. dead letter queue
+     6. shutdown handling
 
 ## Progress Notes
 
