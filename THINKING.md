@@ -6,8 +6,6 @@
 
 ## Initial Reaction
 
-## Initial Reaction
-
 - What's your gut take on the problem?
 
 This looks like building a small in-memory job scheduler
@@ -40,8 +38,6 @@ Not sure yet:
 
 Also:
 - in real life tools like Airflow / Control-M exist for this and it is much easier to use those to create something of this kind.
-
-## Plan
 
 ## Plan
 
