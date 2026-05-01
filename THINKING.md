@@ -8,7 +8,7 @@
 
 - What's your gut take on the problem?
 
-This looks like building a small in-memory job scheduler
+This looks like building a small in-memory job scheduler.
 Components I’m thinking about:
 - job queue
 - timers
@@ -20,7 +20,7 @@ Components I’m thinking about:
 Retry with delay + shutdown interaction feels tricky, not sure how to handle it
 
 Also:
-- “delayed tasks shouldn’t take a concurrency slot”
+- “delayed tasks shouldn’t take a concurrency slot”. 
   Looks like can't just sleep inside a worker thread
 
 - What approaches do you see? Which would you rule out and why?
@@ -50,7 +50,7 @@ Thinking:
 
 
 - What are the key design decisions you're making up front?
-     - use semaphore to control concurrency
+     - use multiple worker threads to control concurrency (instead of semaphore for now)
      - use threads for execution (simpler than asyncio)
      - delayed tasks should NOT block worker threads → need separate scheduling
 
@@ -81,15 +81,20 @@ Thinking:
      Imagine your pair partner just asked "what are you doing?" — answer that.
      Add as many entries as you need. -->
 
-### [HH:MM]
+###05/01 - [15:10]
+Started with very basic version where enqueue directly executed task. Realized that’s not actually a queue.
 
-### [HH:MM]
+###05/01 - [15:20]
+Switched to using queue.Queue + worker thread so tasks are actually queued and processed asynchronously.
 
-### [HH:MM]
+###05/01-  [15:35]
+Added concurrency by starting multiple worker threads instead of one. This naturally limits number of tasks running at the same time.
 
-### [HH:MM]
+###05/01 - [15:40]
+Originally thought of using semaphore for concurrency, but worker threads felt simpler to implement for now.
 
-### [HH:MM]
+###05/01 - [15:45]
+Not sure yet how delayed tasks will fit into this since workers block on queue.get(). Might need separate scheduler.
 
 ## Research / References
 
