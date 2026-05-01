@@ -8,33 +8,36 @@
 
 - What's your gut take on the problem?
 
-This looks like building a small in-memory job scheduler.
-Components I’m thinking about:
-- job queue
-- timers
-- concurrent execution
-- delays
-- failure handling
+     This looks like building a small in-memory job scheduler.
+     Components I’m thinking about:
+     - job queue
+     - timers
+     - concurrent execution
+     - delays
+     - failure handling
 
 - What feels like the hard part?
-Retry with delay + shutdown interaction feels tricky, not sure how to handle it
-
-Also:
-- “delayed tasks shouldn’t take a concurrency slot”. 
-  Looks like can't just sleep inside a worker thread
+  
+     Retry with delay + shutdown interaction feels tricky, not sure how to handle it
+     Also:
+     - this part - “delayed tasks shouldn’t take a concurrency slot”. 
+       Looks like can't just sleep inside a worker thread.Not quite sure
 
 - What approaches do you see? Which would you rule out and why?
-Thinking about using semaphores since I’ve used them before for job scheduling
+  
+     Thinking about using semaphores since I’ve used them before for job scheduling
 
 Not sure yet:
-- worker pool vs threads + semaphore
-- how to handle delayed tasks (maybe separate scheduler?)
+
+     - worker pool vs threads + semaphore
+     - how to handle delayed tasks (maybe separate scheduler?)
 
 
 - Anything you're already unsure about?
- - how to handle delayed tasks without blocking threads
- - how retry + delay connect
- - what happens during shutdown with delayed/retry tasks
+- 
+      - how to handle delayed tasks without blocking threads
+      - how retry + delay connect
+      - what happens during shutdown with delayed/retry tasks
 
 Also:
 - in real life tools like Airflow / Control-M exist for this and it is much easier to use those to create something of this kind.
