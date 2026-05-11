@@ -85,11 +85,13 @@ Thinking:
      Add as many entries as you need. -->
 
 
-###05/08
+###05/08  - 9 AM - 2:45 PM
 Started working on delayed execution. Needed a way to schedule tasks without blocking worker threads.
 Used heap (priority queue) to store delayed tasks with run_at timestamp.
 Added a separate scheduler thread to check delayed tasks and move them to main queue when ready.
 Initially thought about just sleeping inside worker, but that would block concurrency slots, so avoided that approach.
+Implemented delayed execution using heap and scheduler thread.
+Verified that delayed tasks do not block worker threads and run after expected delay.
 
 ###05/01 - 10 AM  - 2 PM
 Not sure yet how delayed tasks will fit into this since workers block on queue.get(). Might need separate scheduler.
