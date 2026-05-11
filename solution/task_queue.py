@@ -8,6 +8,7 @@ class TaskQueue:
     def __init__(self, concurrency=3):
         self.q = queue.Queue()
         self.delayed = []
+        self.dead_letters = []
 
         # worker threads
         for _ in range(concurrency):
@@ -52,6 +53,12 @@ class TaskQueue:
                         (run_at, handler, payload, attempt, max_retries, backoff_ms),
                     )
                 else:
+                    self.dead_letters.append({
+                        "handler": handler.__name__,
+                        "payload": payload,
+                        "error": str(e),
+                        "attempts": attempt
+                    })
                     print(f"[{time.strftime('%H:%M:%S')}] Moved to dead letter queue")
 
     def _scheduler(self):
@@ -63,3 +70,6 @@ class TaskQueue:
                 self.q.put((handler, payload, attempt, max_retries, backoff_ms))
             else:
                 time.sleep(0.1)
+
+    def get_dead_letters(self):
+        return self.dead_letters
