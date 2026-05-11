@@ -10,6 +10,10 @@ class TaskQueue:
         self.delayed = []
         self.dead_letters = []
 
+        self.is_shutdown = False
+        self.active_tasks = 0
+        self.lock = threading.Lock()
+
         # worker threads
         for _ in range(concurrency):
             threading.Thread(target=self._worker, daemon=True).start()
@@ -18,6 +22,10 @@ class TaskQueue:
         threading.Thread(target=self._scheduler, daemon=True).start()
 
     def enqueue(self, handler, payload, delay_ms=0, max_retries=0, backoff_ms=0):
+        if self.is_shutdown:
+            print("Queue is shutting down. Rejecting new task.")
+            return
+
         print(f"[{time.strftime('%H:%M:%S')}] Task enqueued")
 
         if delay_ms > 0:
@@ -31,7 +39,17 @@ class TaskQueue:
 
     def _worker(self):
         while True:
-            handler, payload, attempt, max_retries, backoff_ms = self.q.get()
+            if self.is_shutdown and self.q.empty():
+                break
+
+            try:
+                handler, payload, attempt, max_retries, backoff_ms = self.q.get(timeout=0.1)
+            except queue.Empty:
+                continue
+
+            with self.lock:
+                self.active_tasks += 1
+
             print(f"[{time.strftime('%H:%M:%S')}] Task started")
 
             try:
@@ -61,8 +79,15 @@ class TaskQueue:
                     })
                     print(f"[{time.strftime('%H:%M:%S')}] Moved to dead letter queue")
 
+            finally:
+                with self.lock:
+                    self.active_tasks -= 1
+
     def _scheduler(self):
         while True:
+            if self.is_shutdown and not self.delayed:
+                break
+
             now = time.time()
 
             if self.delayed and self.delayed[0][0] <= now:
@@ -73,3 +98,16 @@ class TaskQueue:
 
     def get_dead_letters(self):
         return self.dead_letters
+
+    def shutdown(self):
+        print("Shutting down queue...")
+        self.is_shutdown = True
+
+        # wait for running tasks to finish
+        while True:
+            with self.lock:
+                if self.active_tasks == 0:
+                    break
+            time.sleep(0.1)
+
+        print("Shutdown complete.")

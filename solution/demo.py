@@ -18,23 +18,32 @@ def always_fail(payload):
     raise Exception("always fails")
 
 
+def slow_task(payload):
+    print(f"[{time.strftime('%H:%M:%S')}] Running slow task")
+    time.sleep(2)
+
+
 queue = TaskQueue(concurrency=2)
 
-# normal tasks
-queue.enqueue(sample_task, "Immediate-1")
-queue.enqueue(sample_task, "Immediate-2")
+# 1. concurrency test
+for i in range(5):
+    queue.enqueue(sample_task, f"Task-{i}")
 
-# delayed task
-queue.enqueue(sample_task, "Delayed-3", delay_ms=3000)
+# 2. delayed task
+queue.enqueue(sample_task, "Delayed-Task", delay_ms=3000)
 
-# retry task
+# 3. retry test
 queue.enqueue(flaky_task, {"attempt": 0}, max_retries=3, backoff_ms=1000)
 
-# dead letter test
+# 4. dead letter test
 queue.enqueue(always_fail, "bad-task", max_retries=2, backoff_ms=500)
 
-time.sleep(10)
+# 5. shutdown test
+queue.enqueue(slow_task, "slow")
+time.sleep(1)
+queue.shutdown()
 
+# print dead letters
 print("\nDead Letters:")
 for d in queue.get_dead_letters():
     print(d)

@@ -82,7 +82,7 @@ Thinking:
 ### [04/14 13:00]
 Looked through the task. Feels like a mini job scheduler.
 
-### [04/28 10:30]
+### [04/28 10:30 am]
 Sketched out rough plan.
 
 ### [05/01 10:15]
@@ -96,16 +96,14 @@ Switched to queue.Queue + worker thread. Now tasks actually queue up.
 
 ### [05/01 13:00]
 Added multiple worker threads. This handles concurrency naturally.
-
-### [05/01 13:30]
 Was thinking about semaphores but threads felt simpler.
 
 ### [05/01 14:00]
 Not sure yet how delayed tasks will fit in since workers block on queue.get(). Need to try something, got another idea.
-
+Definitely taking more time than expected.
 
 ### [05/08 09:15]
-Started working on delayed execution.
+Started working on delayed execution. The code is at least running without errors.
 
 ### [05/08 10:00 AM]
 Using heap to store delayed tasks with run time.
@@ -114,24 +112,37 @@ Using heap to store delayed tasks with run time.
 Added scheduler thread to move tasks from heap to main queue.
 
 ### [05/08 11:30 am]
-Originally thought of just sleeping inside worker, but that blocks concurrency. Thi is not working as expected not good.
+Originally thought of just sleeping inside worker, but that blocks concurrency. This is not working as expected not good.
 
 ### [05/08 12:30 PM]
-Delay logic working now.
+Delay logic is finally working now.
 
 ### [05/08 1:00 PM]
 Confirmed delayed tasks run at correct time and don’t block workers.
 
-### [05/11 09:30 AM]
+### [05/10 09:30 AM]
 Started retry logic. udpated the code file. Committed changes to main.
 
-### [05/11 10:15 AM]
+### [05/10 10:15 AM]
 Realized retry is basically delayed execution again.
 Reused delayed queue for retries instead of building separate system. Much simpler.
 
-### [05/11 1:55 PM]
+### [05/11 9:30 am]
 Added dead letter queue to capture tasks that failed after all retries.
 Stored handler name, payload, error, and attempt count for easier debugging.
+
+### [05/11 1:55 PM]
+Added graceful shutdown. Used flag to stop accepting new tasks and tracked active tasks.
+
+### [05/11 2:04 PM]
+Shutdown waits until currently running tasks finish before completing.
+
+
+## Assumptions:
+- supporting only synchronous handlers for now (did not implement async handling for now)
+- in-memory only, no persistence (tasks lost on restart)
+- simple polling scheduler is acceptable for this exercise
+- using threads instead of more complex concurrency models
 
 
 ## Retrospective
