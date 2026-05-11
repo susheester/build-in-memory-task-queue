@@ -84,20 +84,25 @@ Thinking:
      Imagine your pair partner just asked "what are you doing?" — answer that.
      Add as many entries as you need. -->
 
-###05/01 - [15:10]
+
+###05/08
+Started working on delayed execution. Needed a way to schedule tasks without blocking worker threads.
+Used heap (priority queue) to store delayed tasks with run_at timestamp.
+Added a separate scheduler thread to check delayed tasks and move them to main queue when ready.
+Initially thought about just sleeping inside worker, but that would block concurrency slots, so avoided that approach.
+
+###05/01 - 10 AM  - 2 PM
+Not sure yet how delayed tasks will fit into this since workers block on queue.get(). Might need separate scheduler.
+Originally thought of using semaphore for concurrency, but worker threads felt simpler to implement for now.
+Added concurrency by starting multiple worker threads instead of one. This naturally limits number of tasks running at the same time.
+Switched to using queue.Queue + worker thread so tasks are actually queued and processed asynchronously.
 Started with very basic version where enqueue directly executed task. Realized that’s not actually a queue.
 
-###05/01 - [15:20]
-Switched to using queue.Queue + worker thread so tasks are actually queued and processed asynchronously.
+###04/28 - 10 AM - 2 PM
+Deteailed code plan
 
-###05/01-  [15:35]
-Added concurrency by starting multiple worker threads instead of one. This naturally limits number of tasks running at the same time.
-
-###05/01 - [15:40]
-Originally thought of using semaphore for concurrency, but worker threads felt simpler to implement for now.
-
-###05/01 - [15:45]
-Not sure yet how delayed tasks will fit into this since workers block on queue.get(). Might need separate scheduler.
+###04/14 - 1:00 PM - 2 PM 
+Reviewed task
 
 ## Research / References
 
