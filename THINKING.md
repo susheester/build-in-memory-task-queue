@@ -84,6 +84,9 @@ Thinking:
      Imagine your pair partner just asked "what are you doing?" — answer that.
      Add as many entries as you need. -->
 
+###05/11 - 9 AM -  3 PM
+Added retry logic with exponential backoff. Reused delayed queue instead of creating a separate retry system.
+Observed retries happening with increasing delay (1s, 2s, etc). This simplified design by using same scheduling mechanism.
 
 ###05/08  - 9 AM - 2:45 PM
 Started working on delayed execution. Needed a way to schedule tasks without blocking worker threads.
@@ -92,8 +95,10 @@ Added a separate scheduler thread to check delayed tasks and move them to main q
 Initially thought about just sleeping inside worker, but that would block concurrency slots, so avoided that approach.
 Implemented delayed execution using heap and scheduler thread.
 Verified that delayed tasks do not block worker threads and run after expected delay.
+demo.py  →  TaskQueue  →  worker threads → tasks run
 
 ###05/01 - 10 AM  - 2 PM
+Started coding using VS Studio code. 
 Not sure yet how delayed tasks will fit into this since workers block on queue.get(). Might need separate scheduler.
 Originally thought of using semaphore for concurrency, but worker threads felt simpler to implement for now.
 Added concurrency by starting multiple worker threads instead of one. This naturally limits number of tasks running at the same time.

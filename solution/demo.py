@@ -7,10 +7,23 @@ def sample_task(payload):
     time.sleep(1)
 
 
+def flaky_task(payload):
+    if payload["attempt"] < 2:
+        payload["attempt"] += 1
+        raise Exception("fail")
+    print(f"[{time.strftime('%H:%M:%S')}] success")
+
+
 queue = TaskQueue(concurrency=2)
 
+# normal tasks
 queue.enqueue(sample_task, "Immediate-1")
 queue.enqueue(sample_task, "Immediate-2")
+
+# delayed task
 queue.enqueue(sample_task, "Delayed-3", delay_ms=3000)
 
-time.sleep(6)
+# retry task
+queue.enqueue(flaky_task, {"attempt": 0}, max_retries=3, backoff_ms=1000)
+
+time.sleep(10)
