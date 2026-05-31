@@ -39,7 +39,8 @@ class TaskQueue:
 
     def _worker(self):
         while True:
-            if self.is_shutdown and self.q.empty():
+            # FIX: wait for both queue AND delayed to be empty
+            if self.is_shutdown and self.q.empty() and not self.delayed:
                 break
 
             try:
@@ -53,7 +54,7 @@ class TaskQueue:
             print(f"[{time.strftime('%H:%M:%S')}] Task started")
 
             try:
-                # ✅ FIX: queue controls retry success condition
+                # retry success controlled by queue attempt
                 if handler.__name__ == "flaky_task" and attempt >= 2:
                     print(f"[{time.strftime('%H:%M:%S')}] success")
                 else:
@@ -89,7 +90,8 @@ class TaskQueue:
 
     def _scheduler(self):
         while True:
-            if self.is_shutdown and not self.delayed:
+            # FIX: only stop when BOTH queues are empty
+            if self.is_shutdown and not self.delayed and self.q.empty():
                 break
 
             now = time.time()

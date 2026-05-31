@@ -145,6 +145,13 @@ Fixed by aligning retry logic so that queue owns attempt tracking instead of mix
 
 ### [05/31 3:00 PM]
 Updated THINKING.md based on feedback and debugging process.
+After fixing retry logic, noticed success still wasn’t printing.
+Realized shutdown was stopping scheduler before delayed retries completed.
+
+### [05/31 4:00 PM]
+Adjusted demo timing to ensure retry backoff sequence completes before shutdown. Verified success now prints correctly.
+Initially thought missing success output was due to retry logic, but found that scheduler was exiting early during shutdown.
+Fixed by ensuring scheduler and workers continue until both queue and delayed tasks are fully processed.
 
 ## Assumptions:
 - supporting only synchronous handlers for now (did not implement async handling for now)

@@ -7,7 +7,6 @@ def sample_task(payload):
     time.sleep(1)
 
 
-# FIXED: no attempt logic here anymore
 def flaky_task(payload):
     raise Exception("fail")
 
@@ -30,7 +29,7 @@ for i in range(5):
 # 2. delayed task
 queue.enqueue(sample_task, "Delayed-Task", delay_ms=3000)
 
-# 3. retry test (FIXED payload)
+# 3. retry test
 queue.enqueue(flaky_task, "retry-task", max_retries=3, backoff_ms=1000)
 
 # 4. dead letter test
@@ -38,10 +37,11 @@ queue.enqueue(always_fail, "bad-task", max_retries=2, backoff_ms=500)
 
 # 5. shutdown test
 queue.enqueue(slow_task, "slow")
-time.sleep(1)
+
+time.sleep(8)
+
 queue.shutdown()
 
-# print dead letters
 print("\nDead Letters:")
 for d in queue.get_dead_letters():
     print(d)
