@@ -7,11 +7,9 @@ def sample_task(payload):
     time.sleep(1)
 
 
+# FIXED: no attempt logic here anymore
 def flaky_task(payload):
-    if payload["attempt"] < 2:
-        payload["attempt"] += 1
-        raise Exception("fail")
-    print(f"[{time.strftime('%H:%M:%S')}] success")
+    raise Exception("fail")
 
 
 def always_fail(payload):
@@ -32,8 +30,8 @@ for i in range(5):
 # 2. delayed task
 queue.enqueue(sample_task, "Delayed-Task", delay_ms=3000)
 
-# 3. retry test
-queue.enqueue(flaky_task, {"attempt": 0}, max_retries=3, backoff_ms=1000)
+# 3. retry test (FIXED payload)
+queue.enqueue(flaky_task, "retry-task", max_retries=3, backoff_ms=1000)
 
 # 4. dead letter test
 queue.enqueue(always_fail, "bad-task", max_retries=2, backoff_ms=500)
