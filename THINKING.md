@@ -137,6 +137,14 @@ Added graceful shutdown. Used flag to stop accepting new tasks and tracked activ
 ### [05/11 2:04 PM]
 Shutdown waits until currently running tasks finish before completing.
 
+### [05/28 10:00 AM]
+Checked the code against the feedback that flaky_task was not reaching success state. Investigated and found inconsistency in retry state handling.
+
+### [05/31 1:30 PM]
+Fixed by aligning retry logic so that queue owns attempt tracking instead of mixing handler and queue state.
+
+### [05/31 3:00 PM]
+Updated THINKING.md based on feedback and debugging process.
 
 ## Assumptions:
 - supporting only synchronous handlers for now (did not implement async handling for now)
