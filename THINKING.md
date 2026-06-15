@@ -153,6 +153,21 @@ Adjusted demo timing to ensure retry backoff sequence completes before shutdown.
 Initially thought missing success output was due to retry logic, but found that scheduler was exiting early during shutdown.
 Fixed by ensuring scheduler and workers continue until both queue and delayed tasks are fully processed.
 
+### [06/10 10:00 AM]
+Got additional feedback that the retry fix was still not correct since it relied on special-casing the handler instead of re-running it.
+
+### [06/10 11:00 AM]
+Reviewed feedback and analyzed the changes that need to be made to correct the code
+
+### [06/11 9:00 AM]
+Refactored retry logic so that the handler itself controls success condition and queue simply re-invokes it on retry.
+
+### [06/12 12:00 PM]
+Revisited shutdown behavior and ensured scheduler and worker continue until both queue and delayed tasks are fully drained.
+
+### [06/15 9:00 AM]
+Re-ran demo multiple times to validate correct behavior and confirm that success consistently prints after retries.
+
 ## Assumptions:
 - supporting only synchronous handlers for now (did not implement async handling for now)
 - in-memory only, no persistence (tasks lost on restart)

@@ -14,11 +14,9 @@ class TaskQueue:
         self.active_tasks = 0
         self.lock = threading.Lock()
 
-        # worker threads
         for _ in range(concurrency):
             threading.Thread(target=self._worker, daemon=True).start()
 
-        # scheduler thread
         threading.Thread(target=self._scheduler, daemon=True).start()
 
     def enqueue(self, handler, payload, delay_ms=0, max_retries=0, backoff_ms=0):
@@ -39,7 +37,7 @@ class TaskQueue:
 
     def _worker(self):
         while True:
-            # FIX: wait for both queue AND delayed to be empty
+            # FIX: don't exit until both queues are empty
             if self.is_shutdown and self.q.empty() and not self.delayed:
                 break
 
@@ -54,12 +52,9 @@ class TaskQueue:
             print(f"[{time.strftime('%H:%M:%S')}] Task started")
 
             try:
-                # retry success controlled by queue attempt
-                if handler.__name__ == "flaky_task" and attempt >= 2:
-                    print(f"[{time.strftime('%H:%M:%S')}] success")
-                else:
-                    handler(payload)
-                    print(f"[{time.strftime('%H:%M:%S')}] Task finished")
+                # FIX: re-run handler normally (no special-casing)
+                handler(payload)
+                print(f"[{time.strftime('%H:%M:%S')}] Task finished")
 
             except Exception as e:
                 print(f"[{time.strftime('%H:%M:%S')}] Task failed: {e}")
@@ -90,7 +85,7 @@ class TaskQueue:
 
     def _scheduler(self):
         while True:
-            # FIX: only stop when BOTH queues are empty
+            # FIX: keep running until everything is drained
             if self.is_shutdown and not self.delayed and self.q.empty():
                 break
 

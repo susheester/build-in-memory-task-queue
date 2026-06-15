@@ -7,8 +7,12 @@ def sample_task(payload):
     time.sleep(1)
 
 
+# FIX: handler controls success
 def flaky_task(payload):
-    raise Exception("fail")
+    if payload["attempt"] < 2:
+        payload["attempt"] += 1
+        raise Exception("fail")
+    print(f"[{time.strftime('%H:%M:%S')}] success")
 
 
 def always_fail(payload):
@@ -29,8 +33,8 @@ for i in range(5):
 # 2. delayed task
 queue.enqueue(sample_task, "Delayed-Task", delay_ms=3000)
 
-# 3. retry test
-queue.enqueue(flaky_task, "retry-task", max_retries=3, backoff_ms=1000)
+# 3. retry test (IMPORTANT: dict payload)
+queue.enqueue(flaky_task, {"attempt": 0}, max_retries=3, backoff_ms=1000)
 
 # 4. dead letter test
 queue.enqueue(always_fail, "bad-task", max_retries=2, backoff_ms=500)
@@ -38,7 +42,7 @@ queue.enqueue(always_fail, "bad-task", max_retries=2, backoff_ms=500)
 # 5. shutdown test
 queue.enqueue(slow_task, "slow")
 
-time.sleep(8)
+time.sleep(7)  # enough time for retries to complete
 
 queue.shutdown()
 
